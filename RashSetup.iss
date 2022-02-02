@@ -7,6 +7,22 @@
 #define MyAppURL "https://github.com/RahulARanger/RashSetup"
 #define MyAppExeName "Rash.exe"
 
+
+#define Name "Rash"
+#define Author "RahulARanger"
+#define Version "0.0.1"
+#define URL "https://github.com/RahulARanger/RashSetup"
+#define Exe "Rash.exe"
+
+[Setup]
+AppName={#Name}
+AppVersion={#Version}
+AppPublisher={#Author}
+AppPublisherURL={#AuthorURL}
+
+
+
+
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
@@ -28,9 +44,6 @@ OutputBaseFilename=Rash
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-
-[Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked

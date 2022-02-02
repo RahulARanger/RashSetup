@@ -11,8 +11,9 @@ $ScriptPath = if($PSScriptRoot) {$PSScriptRoot} else {Split-Path -Parent (Get-Pr
 
 # Path where the Python Lives
 $PythonPath = Join-Path -Path $ScriptPath -ChildPath "Python"
-# Path where the Rash will be there
-$RashPath = Join-Path -Path $ScriptPath -ChildPath "Rash"
+$PythonExecutable = Join-Path -Path $PythonPath -ChildPath "Python.exe"
+$RashExecutable = Join-Path -Path (Join-Path -Path $PythonPath -ChildPath "Scripts") -ChildPath "Rash.exe"
+
 
 # if someone runs this script not in file, then it will be installed in the current working directory
 
@@ -69,31 +70,6 @@ function Get-Confirmation{
     ) -eq 0
 }
 
-function Get-PathStatus{
-    param(
-        [int]$index=1,
-        [bool]$all=$false
-
-    )
-    Test-Path -Path $RashPath, $PythonPath
-    if ($all) {$status} else {$status[$index]}
-}
-
-function Set-RestorePython{
-
-    $status = Get-PathStatus -all $true
-
-    if ($status[1]) {
-        Show-Safe -warning $true "Removing Python Path"
-        Remove-Item -Path $PythonPath -Recurse
-    }
-
-    if ($status[0]){
-        Show-Safe -warning $true "Removing Rash Package"
-        Remove-Item -Path $RashPath -Recurse
-    }
-    
-}
 
 
 function Invoke-WebRequestFile{
@@ -177,18 +153,26 @@ function Get-Python{
 
 
 function Get-Rash{
-    Show-Safe "Downloading Rash Package" -clear $true
-    
-    $temp = Join-Path -Path $ScriptPath -ChildPath "rash.zip"
-
+    & $PythonExecutable @("-m", "pip", "install", "git+https://github.com/RahulARanger/Rash.git")
 }
 
-$result = $false
+function Remove-Python{
+    Remove-Item -Path $PythonPath -Recurse
+}
+
+$result = @(
+            (Test-Path -Path $PythonExecutable),
+            (Test-Path -Path $RashExecutable)
+        )
 
 switch($Setup){
+    "python"{
+        & $PythonExecutable
+        break
+
+    }
     "restore"{
-        if(Get-Confirmation) {Set-RestorePython} else {exit}
-        Clear-Host
+        Remove-Python
     }
 
     "uninstall"{
@@ -196,14 +180,9 @@ switch($Setup){
     }
 
     {$_ -eq "" -or $_ -eq "check"}{    ## we check before starting rash too
-        $result = Test-Path -Path $PythonPath
 
-        if($result){
-            Show-Safe "You have Embedded Python that Rash needs"
-        }
-        else{
-            Show-Safe "You have not Downloaded Python" -Warning $true
-        }
+        if($result[0]) {Show-Safe "You have Embedded Python that Rash needs"} else {Show-Safe "You have not Downloaded Python" -Warning $true}
+        if($result[1]) {Show-Safe "You have Rash Package"} else {Show-Safe "You have not Downloaded Rash" -Warning $true}
     }
 
     "check"{
@@ -211,12 +190,15 @@ switch($Setup){
         break
     }
     
-    {$result -eq $false}{
+    {$result[0] -eq $false}{
         ## if result is false we download python in the current working directory or directory of this file
         Get-Python
     }
+    {$result[1] -eq $false}{
+        Get-Rash
+    }
 
     "" {
-        Show-Safe "Starting Rash"
+        & $RashExecutable $rargs
     }
 }
