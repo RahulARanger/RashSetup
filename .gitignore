@@ -1,12 +1,6 @@
 *.exe
-*.json
-*.log
-RashSetup/Data
-RashSetup/Drivers/
-RashSetup/_Drivers/
+*/Test/*
 .idea
-Test
-Installer/Windows/Python
-.pytest_cache
-dist
-*.egg-info
+.vscode
+*/__pycache__/*
+dist/*

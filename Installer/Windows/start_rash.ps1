@@ -1,1 +1,0 @@
-Set-Location Join-Path -Path $PSScriptRoot -ChildPath "Python" 
